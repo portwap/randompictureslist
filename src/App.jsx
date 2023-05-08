@@ -6,9 +6,12 @@ import Error from './Error';
 import Title from './Title';
 import Pictures from './Pictures';
 import Modal from './Modal';
+import Refresh from './Refresh';
+import ScrollToTop from 'react-scroll-to-top';
+import { FaArrowAltCircleUp } from 'react-icons/fa';
 
 function App() {
-  const { isLoading, isError, data, fetchData, url, isModalOpen } = useGlobalContext();
+  const { isLoading, isError, data, isModalOpen } = useGlobalContext();
 
   if (isLoading) {
     return <Loading />;
@@ -18,29 +21,20 @@ function App() {
     return <Error />;
   }
 
-  if (data.length === 0) {
-    return (
-      <main>
-        <section>
-          <div className='title'>
-            <h2>no pictures left</h2>
-            <div className='title-underline'></div>
-            <button className='btn' onClick={() => fetchData(url)}>
-              refresh
-            </button>
-          </div>
-        </section>
-      </main>
-    );
-  }
-
   return (
     <main>
       <section>
-        <Title title='pictures list' />
-        <PicLimitForm />
-        <Pictures />
-        {isModalOpen && <Modal />}
+        {!data.length ? (
+          <Refresh />
+        ) : (
+          <>
+            <Title title='pictures list' />
+            <PicLimitForm />
+            <Pictures />
+            {isModalOpen && <Modal />}
+          </>
+        )}
+        <ScrollToTop smooth top={500} className='btn-up' component={<FaArrowAltCircleUp />} />
       </section>
       <Copyright />
     </main>

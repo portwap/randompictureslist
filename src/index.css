@@ -439,3 +439,19 @@ section {
   background: rgba(10, 51, 51, 0.8);
   transition: all 0.5s ease-in-out;
 }
+
+/* To top button */
+.btn-up {
+  box-shadow: none;
+  background-color: transparent;
+  border-radius: var(--borderRadius);
+}
+.btn-up svg {
+  font-size: 1.5rem;
+  color: rgba(51, 51, 51, 0.5);
+  transition: all 0.5s ease-in-out;
+}
+.btn-up svg:hover {
+  color: rgba(10, 51, 51, 0.8);
+  transition: all 0.5s ease-in-out;
+}

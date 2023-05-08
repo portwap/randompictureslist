@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useReducer } from 'react';
+import { DELETE_ITEM, DISPLAY_LIST, LOADING, LOADING_ERROR, CHANGE_PICLIMIT, OPEN_MODAL, CLOSE_MODAL } from './actions';
+import { reducer } from './reducer';
 
 const AppContext = createContext();
 
@@ -6,23 +8,28 @@ export const useGlobalContext = () => {
   return useContext(AppContext);
 };
 
-export const AppProvider = ({ children }) => {
-  /* Fetching data */
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
-  const [data, setData] = useState(null);
+const defaultState = {
+  isLoading: false,
+  isError: false,
+  data: [],
+  isModalOpen: false,
+  modalId: null,
+};
 
+export const AppProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(reducer, defaultState);
+
+  /* Fetching data */
   const fetchData = async (url) => {
     try {
-      const response = await fetch(url);
-      // console.log(response.headers.get('link')); // доступ к предыдущей и следующей странице
+      dispatch({ type: LOADING });
+      const response = await fetch(url); // console.log(response.headers.get('link')); // доступ к предыдущей и следующей странице
       const data = await response.json();
-      setData(data);
+      dispatch({ type: DISPLAY_LIST, payload: { data } });
     } catch (error) {
-      setIsError(true);
+      dispatch({ type: LOADING_ERROR });
       console.log(error);
     }
-    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -31,54 +38,45 @@ export const AppProvider = ({ children }) => {
 
   /* Remove picture */
   const removePicture = (id) => {
-    const newDataList = data.filter((item) => item.id !== id);
-    setData(newDataList);
+    dispatch({ type: DELETE_ITEM, payload: { id } });
   };
 
   /* Pictures limit selection */
-  const [picLimit, setPicLimit] = useState(10);
-  const picLimitHandleSubmit = (e) => {
-    e.preventDefault();
+  const [picLimit, setPicLimit] = useState(10); // подумать как это использовать с reducer, возможно, после использования axios
+
+  const picLimitHandleSubmit = (event) => {
+    event.preventDefault();
     fetchData(url);
   };
-  const picLimitHandleChange = (e) => {
-    setPicLimit(e.target.value);
+
+  const picLimitHandleChange = (event) => {
+    event.preventDefault();
+    setPicLimit(event.target.value);
   };
 
   const url = `https://picsum.photos/v2/list?page=2&limit=${picLimit}`;
 
   /* Modal */
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalId, setModalId] = useState(null);
-  console.log('modalId', modalId)
-
   const openModal = (id) => {
-    setIsModalOpen(true);
-    setModalId(id);
+    dispatch({ type: OPEN_MODAL, payload: { id } });
   };
 
   const closeModal = () => {
-    setIsModalOpen(false);
-    setModalId(null);
+    dispatch({ type: CLOSE_MODAL });
   };
 
   return (
     <AppContext.Provider
       value={{
-        isLoading,
-        isError,
-        data,
-        fetchData,
+        ...state,
         removePicture,
-        picLimitHandleChange,
         picLimitHandleSubmit,
         picLimit,
+        picLimitHandleChange,
         url,
-        isModalOpen,
         openModal,
         closeModal,
-        modalId,
+        fetchData,
       }}
     >
       {children}
