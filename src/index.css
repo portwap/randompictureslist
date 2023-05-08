@@ -396,13 +396,13 @@ section {
   /* place-items sets both the align-items and justify-items properties in a single declaration */
 }
 
-.modal-container img {
+/* .modal-container img { */
   /* align-self: end; */
-}
+/* } */
 
-.info-modal {
+/* .info-modal { */
   /* align-self: center; */
-}
+/* } */
 
 .close-modal-btn {
   position: absolute;
